@@ -1,0 +1,62 @@
+;
+; Keyboard-Sniffer-KLOG.inf
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = System ; TODO: specify appropriate Class
+ClassGuid   = {4d36e97d-e325-11ce-bfc1-08002be10318} ; TODO: specify appropriate ClassGuid
+Provider    = %ManufacturerName%
+CatalogFile = Keyboard-Sniffer-KLOG.cat
+DriverVer   = ; TODO: set DriverVer in stampinf property pages
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+Keyboard-Sniffer-KLOG.sys = 1,,
+
+;*****************************************
+; Install Section
+;*****************************************
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...16299 ; %13% support introduced in build 16299
+
+[Standard.NT$ARCH$.10.0...16299]
+%Keyboard-Sniffer-KLOG.DeviceDesc% = Keyboard-Sniffer-KLOG_Device, Root\Keyboard-Sniffer-KLOG ; TODO: edit hw-id
+
+[Keyboard-Sniffer-KLOG_Device.NT]
+CopyFiles = File_Copy
+
+[File_Copy]
+Keyboard-Sniffer-KLOG.sys
+
+;-------------- Service installation
+[Keyboard-Sniffer-KLOG_Device.NT.Services]
+AddService = Keyboard-Sniffer-KLOG,%SPSVCINST_ASSOCSERVICE%, Keyboard-Sniffer-KLOG_Service_Inst
+
+; -------------- Keyboard-Sniffer-KLOG driver install sections
+[Keyboard-Sniffer-KLOG_Service_Inst]
+DisplayName    = %Keyboard-Sniffer-KLOG.SVCDESC%
+ServiceType    = 1               ; SERVICE_KERNEL_DRIVER
+StartType      = 3               ; SERVICE_DEMAND_START
+ErrorControl   = 1               ; SERVICE_ERROR_NORMAL
+ServiceBinary  = %13%\Keyboard-Sniffer-KLOG.sys
+
+[Keyboard-Sniffer-KLOG_Device.NT.Wdf]
+KmdfService = Keyboard-Sniffer-KLOG, Keyboard-Sniffer-KLOG_wdfsect
+
+[Keyboard-Sniffer-KLOG_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+SPSVCINST_ASSOCSERVICE = 0x00000002
+ManufacturerName = "<Your manufacturer name>" ;TODO: Replace with your manufacturer name
+DiskName = "Keyboard-Sniffer-KLOG Installation Disk"
+Keyboard-Sniffer-KLOG.DeviceDesc = "Keyboard-Sniffer-KLOG Device"
+Keyboard-Sniffer-KLOG.SVCDESC = "Keyboard-Sniffer-KLOG Service"
