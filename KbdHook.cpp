@@ -56,7 +56,7 @@ NTSTATUS OnReadCompletion(IN PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID Cont
 			if (keys[i].Flags == KEY_MAKE) DbgPrint("%s\n", "Key Down");
 
 			KEY_DATA* kData = (KEY_DATA*)ExAllocatePool(NonPagedPool, sizeof(KEY_DATA));
-			kData->KeyData = (char)keys[i].MakeCode;
+			kData->KeyData = (USHORT)keys[i].MakeCode;
 			kData->KeyFlags = (char)keys[i].Flags;
 
 			DbgPrint("Adding IRP to work queue.");

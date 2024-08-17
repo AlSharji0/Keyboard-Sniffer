@@ -22,7 +22,7 @@ typedef struct _DEVICE_EXTENSION {
 
 struct KEY_DATA {
 	LIST_ENTRY ListEntry;
-	char KeyData;
+	USHORT KeyData;
 	char KeyFlags;
 };
 
