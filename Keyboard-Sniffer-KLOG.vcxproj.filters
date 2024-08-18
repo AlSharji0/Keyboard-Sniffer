@@ -33,9 +33,18 @@
     <ClCompile Include="KbgLog.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="ScanCode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KbdHook.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Keysniff.H">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScanCode.H">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

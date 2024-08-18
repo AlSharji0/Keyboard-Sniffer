@@ -110,9 +110,12 @@
     <ClCompile Include="KbdHook.cpp" />
     <ClCompile Include="KbgLog.cpp" />
     <ClCompile Include="Keysniff.cpp" />
+    <ClCompile Include="ScanCode.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="KbdHook.h" />
+    <ClInclude Include="Keysniff.H" />
+    <ClInclude Include="ScanCode.H" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

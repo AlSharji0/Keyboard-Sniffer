@@ -4,6 +4,7 @@ extern "C" {
 #include <kbdmou.h>
 #include "ntddkbd.h"
 #include "KbdHook.h"
+#include "Keysniff.H"
 
 extern int numPendingIrps;
 
